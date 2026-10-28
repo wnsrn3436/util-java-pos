@@ -1,6 +1,8 @@
 # Java POS
 
-A Java Swing desktop POS program that handles table layout, orders and payment, products, members, and sales for a shop. Data is stored in MySQL through JDBC, and the movable and resizable table widget, the sales graph, and the receipt barcode are drawn directly with Swing and AWT. It was a team project, with the team lead role and the main programming.
+[한국어](README.ko.md)
+
+This is a Java Swing desktop POS program that manages a shop's table layout, orders and payment, products, members, and sales. Data is stored in MySQL through JDBC, and I drew the movable and resizable table widget, the sales graph, and the receipt barcode myself with Swing and AWT. It was a team project, and I was the team lead and the main programmer.
 
 <p>
   <img src="docs/screenshots/screenshot-1.png" width="480" alt="Order tab">
@@ -9,11 +11,11 @@ A Java Swing desktop POS program that handles table layout, orders and payment, 
 
 ## How to use
 
-The Releases download contains the runnable jar and the database schema. Running it requires Java 8 or later, a MySQL server, and MySQL Connector/J.
+The archive downloaded from Releases contains the runnable jar and the database schema. To run it you need Java 8 or later, a MySQL server, and MySQL Connector/J.
 
 1. Run a MySQL server on `localhost:3306` and set the password of the `root` account to `1234`. The connection settings are in `MainFrame.java`.
-2. Run [docs/schema.sql](docs/schema.sql) to create the `pos` database and its tables. It is a schema reconstructed from the queries in the code.
-3. Download MySQL Connector/J and put it next to the jar. The driver class is `com.mysql.jdbc.Driver`, so use the 5.1 line (for example `mysql-connector-java-5.1.49.jar`). It is available on Maven Central as `mysql:mysql-connector-java`.
+2. Run [docs/schema.sql](docs/schema.sql) to create the `pos` database and its tables. The schema was reconstructed from the queries in the code.
+3. Download MySQL Connector/J and put it next to the jar. The driver class is `com.mysql.jdbc.Driver`, so it must be a 5.1 version (for example `mysql-connector-java-5.1.49.jar`). It is available on Maven Central as `mysql:mysql-connector-java`.
 4. Put the connector on the classpath and run `MainFrame`. The classpath separator is `;` on Windows and `:` on macOS and Linux.
 
 ```
@@ -23,19 +25,19 @@ java -cp "java-pos.jar;mysql-connector-java-5.1.49.jar" MainFrame
 
 | Tab | Content |
 |---|---|
-| 주문관리 (orders) | Right click an empty spot and choose "좌석추가" (add seat) to place a table. Clicking the edge of a table makes it follow the mouse, and clicking an empty spot drops it there. The small button at the top left resizes it the same way. Right clicking the edge of a table deletes it. "테이블저장" (save tables) stores the layout in the database, and it comes back on the next run |
+| 주문관리 (orders) | Right-click an empty spot and choose "좌석추가" (add seat) to place a table. Clicking the edge of a table makes it follow the mouse, and clicking an empty spot drops it there. The small button at the top left resizes it the same way. Right-clicking the edge of a table deletes it. "테이블저장" (save tables) stores the layout in the database so it comes back the next time the program runs |
 | 상품관리 (products) | Add a product, or look one up by product number and then edit or delete it |
 | 회원관리 (members) | Add a member, or look one up by member number and then edit or delete it. A new member starts with 100 points and the grade "일반" (regular) |
 | 매출관리 (sales) | Table of sales amounts by date and a line graph |
 
-The "주문관리" button on a table opens the order window. Clicking a product in the product list on the right adds one to the order list and takes one from the stock, and clicking a line in the order list removes one and puts the stock back. The stock is written to the database on every click. "계산" (checkout) records today's date and the total in the payment table `pay` and clears the table. After that, "영수증" (receipt) opens a receipt window with the order lines and a barcode. In the schema, `sales` is a view that sums `pay` by month, so payments show up in the sales tab as they accumulate.
+The "주문관리" button on a table opens the order window. Clicking a product in the product list on the right adds one to the order list and lowers the stock by one, and clicking a line in the order list removes one and returns it to stock. Each click updates the stock in the database right away. "계산" (checkout) records today's date and the total in the payment table `pay` and clears the table. After that, "영수증" (receipt) opens a receipt window with the order lines and a barcode. In the schema, `sales` is a view that sums `pay` by month, so payments show up in the sales tab as they accumulate.
 
-The source is saved in UTF-8, so compile it with `javac -encoding UTF-8`.
+The source is saved in UTF-8, so if you compile it yourself, use `javac -encoding UTF-8`.
 
 
 ## How it works
 
-**The movable and resizable widget is built from scratch.** `Anchor` is a panel that wraps any component. It is 10 pixels larger than the wrapped component on every side and has a 10x10 button at the top left. Pressing the body switches it to move mode, where it follows the cursor on every `mouseMoved` of the parent panel. Pressing the top left button switches it to resize mode, where the top left corner moves with the cursor and the width and height change by the same amount. The widget is kept 10 pixels to the lower right of the cursor, so the cursor stays over the parent panel and the parent keeps receiving the mouse events. Pressing the parent panel once more ends the mode. The tables in the order tab (`PosTable`) and the graph in the sales tab (`Graph`) both sit inside this widget.
+**I built the movable and resizable widget myself.** `Anchor` is a panel that wraps any component. It is 10 pixels larger than the wrapped component on every side and has a 10x10 button at the top left. Pressing the body switches it to move mode, where it follows the cursor on every `mouseMoved` of the parent panel. Pressing the top-left button switches it to resize mode, where the top-left corner moves with the cursor and the width and height change by the same amount. The widget sits 10 pixels to the lower right of the cursor, so the cursor stays over the parent panel and the parent keeps receiving the mouse events. Clicking the parent panel again ends the mode. The tables in the order tab (`PosTable`) and the graph in the sales tab (`Graph`) both sit inside this widget.
 
 ```java
 parent.addMouseMotionListener(new MouseAdapter() {
@@ -55,9 +57,9 @@ parent.addMouseMotionListener(new MouseAdapter() {
 });
 ```
 
-**The table layout is rewritten as a whole.** "테이블저장" empties `table_info` and inserts the size and position of each visible table, one row each. A deleted table is only hidden, so it is left out when saving. On startup the program reads this table and places the tables again.
+**The table layout is rewritten in full.** "테이블저장" empties `table_info` and inserts one row per visible table with its size and position. A deleted table is only hidden, so it is left out of the save. On startup the program reads `table_info` and puts the tables back.
 
-**The barcode draws the time the receipt was opened in binary.** The month, day, hour, minute, and second are joined into one number, and `Barcode` turns it into a 32-bit binary string, appends `01`, and draws a vertical bar for every 1. The bar width is the canvas width divided by the number of digits.
+**The barcode is the time the receipt was opened, drawn in binary.** The month, day, hour, minute, and second are joined into one number, and `Barcode` turns it into a 32-bit binary string, appends `01`, and draws a vertical bar for every 1. The bar width is the canvas width divided by the number of digits.
 
 ```java
 for (int i = binaryString.length() - 1, j = 0; i >= 0; i--, j++)
@@ -69,7 +71,7 @@ for (int i = binaryString.length() - 1, j = 0; i >= 0; i--, j++)
 }
 ```
 
-**The graph is normalized by its minimum and maximum.** `Graph` uses a separate `Canvas` for the horizontal axis, the vertical axis, and the body. The body sets the height of each value by its ratio between the minimum and the maximum, draws a point, and connects it to the previous point with a line. Every time the sales tab is opened, `sales` is read again, and each date with `-` removed is used as a label on the horizontal axis.
+**The graph is normalized to its minimum and maximum.** `Graph` uses a separate `Canvas` for the horizontal axis, the vertical axis, and the body. For each value, the body places a point at a height set by where the value falls between the minimum and the maximum, then joins it to the previous point with a line. Opening the sales tab reads `sales` again each time, and the dates, with `-` removed, become the labels on the horizontal axis.
 
 
 ## Files

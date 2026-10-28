@@ -1,5 +1,7 @@
 # Java POS
 
+[English](README.md)
+
 매장의 테이블 배치, 주문과 결제, 상품, 회원, 매출을 다루는 Java Swing 데스크톱 POS 프로그램이다. 데이터는 JDBC 로 MySQL 에 저장하고, 옮기고 크기를 바꾸는 테이블 위젯과 매출 그래프, 영수증 바코드는 Swing 과 AWT 로 직접 그렸다. 팀 프로젝트로, 팀장과 메인 프로그래밍을 맡았다.
 
 <p>
@@ -13,7 +15,7 @@ Releases에서 받은 압축 파일에는 실행 jar 와 DB 스키마가 들어 
 
 1. MySQL 서버를 `localhost:3306` 에 띄우고 `root` 계정의 비밀번호를 `1234` 로 둔다. 접속 정보는 `MainFrame.java` 에 들어 있다.
 2. [docs/schema.sql](docs/schema.sql) 을 실행해 `pos` 데이터베이스와 테이블을 만든다. 코드의 쿼리에서 재구성한 스키마다.
-3. MySQL Connector/J 를 받아 jar 옆에 둔다. 드라이버 클래스로 `com.mysql.jdbc.Driver` 를 쓰므로 5.1 판(예: `mysql-connector-java-5.1.49.jar`)을 쓴다. Maven Central 의 `mysql:mysql-connector-java` 에서 받을 수 있다.
+3. MySQL Connector/J 를 받아 jar 옆에 둔다. 드라이버 클래스로 `com.mysql.jdbc.Driver` 를 쓰므로 5.1 판(예: `mysql-connector-java-5.1.49.jar`)이어야 한다. Maven Central 의 `mysql:mysql-connector-java` 에서 받을 수 있다.
 4. 커넥터를 클래스패스에 넣고 `MainFrame` 을 실행한다. 클래스패스 구분자는 Windows 가 `;`, macOS 와 Linux 가 `:` 다.
 
 ```
